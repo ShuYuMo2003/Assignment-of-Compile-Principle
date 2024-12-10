@@ -2001,6 +2001,7 @@ Matrix * handle_matrix_inv(Matrix * mat) {
     return result;
 }
 
+
 Matrix * handle_matrix_mul(Matrix * mat0, Matrix * mat1) {
     if(mat0->columns != mat1->rows) {
         sprintf(msg, "(%d x %d) x (%d x %d), %d != %d. these two matrixs can not be multiplied.",
@@ -2021,6 +2022,285 @@ Matrix * handle_matrix_mul(Matrix * mat0, Matrix * mat1) {
     return result;
 }
 
+
+
+//WYS Segment
+
+Matrix * handle_matrix_det(Matrix * mat) {
+    if(mat->rows != mat->columns){
+        sprintf(msg, "Matrix is not square row: %d != column: %d.\n", mat->rows, mat->columns);
+        yyerror(msg);
+        _YYABORT;
+    }
+
+    int n = mat->rows;
+    Matrix * temp = malloc_matrix(n, n);
+    Matrix * result = malloc_matrix(1, 1);
+    *get_ele(result, 0, 0) = 1.0;
+
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++)
+            *get_ele(temp, i, j) = *get_ele(mat, i, j);
+
+    for (int i = 0; i < n; i++) {
+        if (fabs(*get_ele(temp, i, i)) < EPS) {
+            int row = i + 1;
+            while (row < n && fabs(*get_ele(temp, row, i)) < EPS) row++;
+            if (row == n) {
+                *get_ele(result, 0, 0) = 0.0;
+                free_matrix(temp);
+                return result;
+            }
+            for (int j = 0; j < n; j++)
+                swap_double(get_ele(temp, i, j), get_ele(temp, row, j));
+            *get_ele(result, 0, 0) *= -1;
+        }
+        for (int j = i + 1; j < n; j++) {
+            double f = *get_ele(temp, j, i) / *get_ele(temp, i, i);
+            for (int k = i; k < n; k++)
+                *get_ele(temp, j, k) -= f * *get_ele(temp, i, k);
+        }
+        *get_ele(result, 0, 0) *= *get_ele(temp, i, i);
+    }
+
+    free_matrix(temp);
+    return result;
+}
+
+
+Matrix* handle_matrix_rank(Matrix* mat) {
+    int rank = 0;
+    int rows = mat->rows;
+    int cols = mat->columns;
+    Matrix* temp = malloc_matrix(rows, cols);
+    Matrix* result = malloc_matrix(1, 1);
+
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            *get_ele(temp, i, j) = *get_ele(mat, i, j);
+
+    for (int row = 0; row < rows; row++) {
+        int found = 0;
+
+        for (int i = row; i < rows; i++) {
+            if (fabs(*get_ele(temp, i, row)) > EPS) {
+                if (i != row) {
+
+                    for (int j = 0; j < cols; j++) {
+                        swap_double(get_ele(temp, row, j), get_ele(temp, i, j));
+                    }
+                }
+                found = 1;
+                break;
+            }
+        }
+
+        if (!found) {
+            continue;
+        }
+
+        double pivot = *get_ele(temp, row, row);
+        for (int j = 0; j < cols; j++) {
+            *get_ele(temp, row, j) /= pivot;
+        }
+
+        for (int i = 0; i < rows; i++) {
+            if (i != row) {
+                double factor = *get_ele(temp, i, row);
+                for (int j = 0; j < cols; j++) {
+                    *get_ele(temp, i, j) -= factor * *get_ele(temp, row, j);
+                }
+            }
+        }
+
+        rank++;
+    }
+
+    free_matrix(temp);
+    *get_ele(result, 0, 0) = rank;
+    return result;
+}
+
+
+Matrix* handle_matrix_eigval(Matrix* mat) {
+    if(mat->rows != mat->columns){
+        sprintf(msg, "Matrix is not square row: %d != column: %d.\n", mat->rows, mat->columns);
+        yyerror(msg);
+        _YYABORT;
+    }
+
+    int n = mat->rows;
+    Matrix* temp = malloc_matrix(n, 1);
+    int eigval_index = 0;
+
+    double lambda_min = -100.0, lambda_max = 100.0;
+    double step = 0.01;
+
+    for (double lambda = lambda_min; lambda <= lambda_max; lambda += step) {
+        Matrix* detmat = malloc_matrix(n, n);
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                *get_ele(detmat, i, j) = *get_ele(mat, i, j);
+                if (i == j) {
+                    *get_ele(detmat, i, j) -= lambda;
+                }
+            }
+        }
+
+        Matrix* det_result = handle_matrix_det(detmat);
+        double det_val = *get_ele(det_result, 0, 0);
+        free_matrix(detmat);
+        free_matrix(det_result);
+
+        if (fabs(det_val) < EPS) {
+            *get_ele(temp, eigval_index, 0) = lambda;
+            eigval_index++;
+
+            if (eigval_index == n) {
+                break;
+            }
+        }
+    }
+
+    Matrix* result = malloc_matrix(eigval_index, 1);
+    for (int i = 0; i < eigval_index; i++) {
+        *get_ele(result, i, 0) = *get_ele(temp, i, 0);
+    }
+
+    free_matrix(temp);
+    return result;
+}
+
+
+Matrix* handle_matrix_eigvec(Matrix* mat) {
+    if(mat->rows != mat->columns){
+        sprintf(msg, "Matrix is not square row: %d != column: %d.\n", mat->rows, mat->columns);
+        yyerror(msg);
+        _YYABORT;
+    }
+
+    int n = mat->rows;
+    int eigval_index = 0;
+
+    double lambda_min = -100.0, lambda_max = 100.0;
+    double step = 0.01;
+
+    Matrix* temp = malloc_matrix(n, n);
+
+    for (double lambda = lambda_min; lambda <= lambda_max; lambda += step) {
+        Matrix* detmat = malloc_matrix(n, n);
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                *get_ele(detmat, i, j) = *get_ele(mat, i, j);
+                if (i == j) {
+                    *get_ele(detmat, i, j) -= lambda;
+                }
+            }
+        }
+        Matrix* det_result = handle_matrix_det(detmat);
+        double det_val = *get_ele(det_result, 0, 0);
+        free_matrix(detmat);
+        free_matrix(det_result);
+
+        if (fabs(det_val) < EPS) {
+
+            Matrix* aug_matrix = malloc_matrix(n, n);
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    *get_ele(aug_matrix, i, j) = *get_ele(mat, i, j);
+                    if (i == j) {
+                        *get_ele(aug_matrix, i, j) -= lambda;
+                    }
+                }
+            }
+
+            for (int i = 0; i < n; i++) {
+                int first_nonzero = -1;
+                for (int j = 0; j < n; j++) {
+                    if (fabs(*get_ele(aug_matrix, i, j)) > EPS) {
+                        first_nonzero = j;
+                        break;
+                    }
+                }
+                if (first_nonzero == -1) continue;
+
+                double factor = *get_ele(aug_matrix, i, first_nonzero);
+                for (int j = 0; j < n; j++) {
+                    *get_ele(aug_matrix, i, j) /= factor;
+                }
+
+                for (int k = 0; k < n; k++) {
+                    if (k == i) continue;
+                    double coef = *get_ele(aug_matrix, k, first_nonzero);
+                    for (int j = 0; j < n; j++) {
+                        *get_ele(aug_matrix, k, j) -= coef * *get_ele(aug_matrix, i, j);
+                    }
+                }
+            }
+
+            Matrix* eigvec = malloc_matrix(n, 1);
+            for (int i = 0; i < n; i++) {
+                *get_ele(eigvec, i, 0) = 1.0;
+            }
+            for (int i = 0; i < n; i++) {
+                int first_nonzero = -1;
+                for (int j = 0; j < n; j++) {
+                    if (fabs(*get_ele(aug_matrix, i, j)) > EPS) {
+                        first_nonzero = j;
+                        break;
+                    }
+                }
+                if (first_nonzero == -1) continue;
+
+                double sum = 0.0;
+                for (int j = first_nonzero + 1; j < n; j++) {
+                    sum += *get_ele(aug_matrix, i, j) * *get_ele(eigvec, j, 0);
+                }
+                *get_ele(eigvec, first_nonzero, 0) = -sum;
+            }
+
+            for (int i = 0; i < n; i++) {
+                *get_ele(temp, eigval_index, i) = *get_ele(eigvec, i, 0);
+            }
+
+            free_matrix(aug_matrix);
+            free_matrix(eigvec);
+
+            eigval_index++;
+            if (eigval_index == n) {
+                break;
+            }
+        }
+    }
+
+    Matrix* result = malloc_matrix(eigval_index, n);
+    for (int i = 0; i < eigval_index; i++) {
+        for (int j = 0; j < n; j++) {
+            *get_ele(result, i, j) = *get_ele(temp, i, j);
+        }
+    }
+
+    free_matrix(temp);
+    return result;
+}
+
+
+Matrix * handle_matrix_trans(Matrix * mat) {
+    Matrix * result = malloc_matrix(mat->columns, mat->rows);
+    for (int i = 0; i < result->rows; i++) {
+        for (int j = 0; j < result->columns; j++) {
+            swap_double(get_ele(result, i, j), get_ele(mat, j, i));
+        }
+    }
+    return result;
+}
+
+// Segment End
+
+
+
 Matrix * handle_function(const char * operation_name, Matrix * mat0, Matrix * mat1) {
     // 1. 单目运算 （参数只有一个矩阵）
     // 对于 det / r(求 rank) / eigval(特征值) 返回一个 1x1 的矩阵。
@@ -2035,32 +2315,20 @@ Matrix * handle_function(const char * operation_name, Matrix * mat0, Matrix * ma
     Matrix * result = NULL; // use `malloc_matrix` to create.
 
     if(strcmp("det", operation_name) == 0) {
-        // impl. (1)
-        yyerror("Operation 'det' is not implemented yet.");
-        _YYABORT;
+        result = handle_matrix_det(mat0);
     } else if(strcmp("r", operation_name) == 0) {
-        // impl. (2)
-        yyerror("Operation 'r' is not implemented yet.");
-        _YYABORT;
+        result = handle_matrix_rank(mat0);
     } else if(strcmp("eigval", operation_name) == 0) {
-        // impl. (3)
-        yyerror("Operation 'eigval' is not implemented yet.");
-        _YYABORT;
+        result = handle_matrix_eigval(mat0);
     } else if(strcmp("inv", operation_name) == 0) {
         result = handle_matrix_inv(mat0);
     } else if(strcmp("eigvec", operation_name) == 0) {
-        // impl. (4)
-        yyerror("Operation 'eigvec' is not implemented yet.");
-        _YYABORT;
+        result = handle_matrix_eigvec(mat0);
     } else if(strcmp("trans", operation_name) == 0) {
-        // impl. (5)
-        yyerror("Operation 'trans' is not implemented yet.");
-        _YYABORT;
+        result = handle_matrix_trans(mat0);
     } else if(strcmp("add", operation_name) == 0) {
-        // example by ShuYuMo.
         result = handle_matrix_add(mat0, mat1);
     } else if(strcmp("sub", operation_name) == 0) {
-        // example by ShuYuMo.
         result = handle_matrix_sub(mat0, mat1);
     } else if(strcmp("mul", operation_name) == 0) {
         result = handle_matrix_mul(mat0, mat1);

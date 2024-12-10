@@ -1,0 +1,11 @@
+M1 = [[-1, 1, 0], [-4, 3, 0], [1, 0, 2]];
+
+PRINT r(M1);
+
+PRINT eigval(M1);
+
+PRINT eigvec(M1);
+
+PRINT det(M1);
+
+PRINT M1';
