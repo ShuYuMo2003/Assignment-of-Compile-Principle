@@ -75,6 +75,7 @@
     #include <string.h>
     #include <assert.h>
     #include <math.h>
+    #include <stdbool.h>
     #include "matrix.h"
 
     #define N_MATRIX_MAX    100
@@ -113,7 +114,7 @@
 
 
 /* Line 189 of yacc.c  */
-#line 117 "matrix_calc.tab.c"
+#line 118 "matrix_calc.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -166,7 +167,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 45 "matrix_calc.y"
+#line 46 "matrix_calc.y"
 
     double fp; // float point
     char * str; // string
@@ -175,7 +176,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 179 "matrix_calc.tab.c"
+#line 180 "matrix_calc.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -187,7 +188,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 191 "matrix_calc.tab.c"
+#line 192 "matrix_calc.tab.c"
 
 #ifdef short
 # undef short
@@ -480,9 +481,9 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    67,    67,    69,    73,    74,    75,    76,    80,    86,
-      93,    98,   111,   114,   138,   144,   147,   150,   156,   159,
-     162,   167,   168,   176,   179,   183,   186
+       0,    68,    68,    70,    74,    75,    76,    77,    81,    87,
+      94,    99,   112,   115,   139,   145,   148,   151,   157,   160,
+     163,   168,   169,   177,   180,   184,   187
 };
 #endif
 
@@ -1406,21 +1407,21 @@ yyreduce:
         case 6:
 
 /* Line 1455 of yacc.c  */
-#line 75 "matrix_calc.y"
+#line 76 "matrix_calc.y"
     { print_semicolon_hint(); ;}
     break;
 
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 76 "matrix_calc.y"
+#line 77 "matrix_calc.y"
     { print_semicolon_hint(); ;}
     break;
 
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 80 "matrix_calc.y"
+#line 81 "matrix_calc.y"
     {
         register_matrix((yyvsp[(1) - (3)].str), (yyvsp[(3) - (3)].mat));
     ;}
@@ -1429,7 +1430,7 @@ yyreduce:
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 86 "matrix_calc.y"
+#line 87 "matrix_calc.y"
     {
         print_matrix((yyvsp[(2) - (2)].mat));
         printf("\n");
@@ -1439,7 +1440,7 @@ yyreduce:
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 93 "matrix_calc.y"
+#line 94 "matrix_calc.y"
     {
         // printf("Got element: %lf", $1);
         (yyval.mat) = malloc_matrix(1, 1);
@@ -1450,7 +1451,7 @@ yyreduce:
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 98 "matrix_calc.y"
+#line 99 "matrix_calc.y"
     {
         int new_length = (yyvsp[(1) - (3)].mat)->columns + 1;
         (yyval.mat) = malloc_matrix(1, new_length);
@@ -1466,7 +1467,7 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 111 "matrix_calc.y"
+#line 112 "matrix_calc.y"
     {
         (yyval.mat) = (yyvsp[(1) - (1)].mat);
      ;}
@@ -1475,7 +1476,7 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 114 "matrix_calc.y"
+#line 115 "matrix_calc.y"
     {
         if((yyvsp[(1) - (3)].mat)->columns != (yyvsp[(3) - (3)].mat)->columns) {
             yyerror("Rows must have the same number of columns.");
@@ -1502,7 +1503,7 @@ yyreduce:
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 138 "matrix_calc.y"
+#line 139 "matrix_calc.y"
     {
         (yyval.mat) = (yyvsp[(2) - (3)].mat);
     ;}
@@ -1511,7 +1512,7 @@ yyreduce:
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 144 "matrix_calc.y"
+#line 145 "matrix_calc.y"
     {
         (yyval.mat) = handle_function("add", (yyvsp[(1) - (3)].mat), (yyvsp[(3) - (3)].mat));
     ;}
@@ -1520,7 +1521,7 @@ yyreduce:
   case 16:
 
 /* Line 1455 of yacc.c  */
-#line 147 "matrix_calc.y"
+#line 148 "matrix_calc.y"
     {
         (yyval.mat) = handle_function("sub", (yyvsp[(1) - (3)].mat), (yyvsp[(3) - (3)].mat));
     ;}
@@ -1529,7 +1530,7 @@ yyreduce:
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 150 "matrix_calc.y"
+#line 151 "matrix_calc.y"
     {
         (yyval.mat) = (yyvsp[(1) - (1)].mat);
     ;}
@@ -1538,7 +1539,7 @@ yyreduce:
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 156 "matrix_calc.y"
+#line 157 "matrix_calc.y"
     {
         (yyval.mat) = handle_function("mul", (yyvsp[(1) - (3)].mat), (yyvsp[(3) - (3)].mat));
     ;}
@@ -1547,7 +1548,7 @@ yyreduce:
   case 19:
 
 /* Line 1455 of yacc.c  */
-#line 159 "matrix_calc.y"
+#line 160 "matrix_calc.y"
     {
         (yyval.mat) = handle_function("div", (yyvsp[(1) - (3)].mat), (yyvsp[(3) - (3)].mat));
     ;}
@@ -1556,21 +1557,21 @@ yyreduce:
   case 20:
 
 /* Line 1455 of yacc.c  */
-#line 162 "matrix_calc.y"
+#line 163 "matrix_calc.y"
     { (yyval.mat) = (yyvsp[(1) - (1)].mat); ;}
     break;
 
   case 21:
 
 /* Line 1455 of yacc.c  */
-#line 167 "matrix_calc.y"
+#line 168 "matrix_calc.y"
     { (yyval.mat) = (yyvsp[(2) - (3)].mat); ;}
     break;
 
   case 22:
 
 /* Line 1455 of yacc.c  */
-#line 168 "matrix_calc.y"
+#line 169 "matrix_calc.y"
     {
         (yyval.mat) = (yyvsp[(2) - (2)].mat);
         for(int i = 0; i < (yyval.mat)->rows; i++) {
@@ -1584,7 +1585,7 @@ yyreduce:
   case 23:
 
 /* Line 1455 of yacc.c  */
-#line 176 "matrix_calc.y"
+#line 177 "matrix_calc.y"
     {
         (yyval.mat) = find_matrix((yyvsp[(1) - (1)].str));
     ;}
@@ -1593,7 +1594,7 @@ yyreduce:
   case 24:
 
 /* Line 1455 of yacc.c  */
-#line 179 "matrix_calc.y"
+#line 180 "matrix_calc.y"
     {
         (yyval.mat) = handle_function((yyvsp[(1) - (4)].str), (yyvsp[(3) - (4)].mat), NULL);
         free((yyvsp[(1) - (4)].str));
@@ -1603,7 +1604,7 @@ yyreduce:
   case 25:
 
 /* Line 1455 of yacc.c  */
-#line 183 "matrix_calc.y"
+#line 184 "matrix_calc.y"
     {
         (yyval.mat) = handle_function("trans", (yyvsp[(1) - (2)].mat), NULL);
     ;}
@@ -1612,7 +1613,7 @@ yyreduce:
   case 26:
 
 /* Line 1455 of yacc.c  */
-#line 186 "matrix_calc.y"
+#line 187 "matrix_calc.y"
     {
         (yyval.mat) = (yyvsp[(2) - (3)].mat);
     ;}
@@ -1621,7 +1622,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1625 "matrix_calc.tab.c"
+#line 1626 "matrix_calc.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1833,7 +1834,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 192 "matrix_calc.y"
+#line 193 "matrix_calc.y"
 
 
 Matrix * malloc_matrix(int r, int c) {
@@ -1866,18 +1867,18 @@ void register_matrix(char * name, Matrix * mat) {
 }
 
 void print_matrix(Matrix * mat) {
-    printf("[");
+    printf("\033[1;34m[\033[0m");
     for(int i = 0; i < mat->rows; i++) {
-        printf("%s", i == 0 ? "[" : " [");
+        printf("%s", i == 0 ? "\033[34m[\033[0m" : " \033[34m[\033[0m");
         for(int j = 0; j < mat->columns; j++) {
             double x = *(get_ele(mat, i, j));
             if(fabs(x) < 1e-6) x = 0;
-            printf("% 7.3lf", x);
-            printf("%s", j == mat->columns - 1 ? "" : ", ");
+            printf("\033[1;32m% 7.3lf\033[0m", x);
+            printf("\033[35m%s\033[0m", j == mat->columns - 1 ? "" : ", ");
         }
-        printf("%s", i == mat->rows - 1 ? "]" : "],\n");
+        printf("%s", i == mat->rows - 1 ? "\033[34m]\033[0m" : "\033[34m]\033[0m\033[35m,\033[0m\n");
     }
-    printf("]\n");
+    printf("\033[1;34m]\033[0m\n");
 }
 
 Matrix * find_matrix(char * name) {
@@ -2080,7 +2081,7 @@ Matrix* handle_matrix_rank(Matrix* mat) {
             *get_ele(temp, i, j) = *get_ele(mat, i, j);
 
     for (int row = 0; row < rows; row++) {
-        int found = 0;
+        bool found = false;
 
         for (int i = row; i < rows; i++) {
             if (fabs(*get_ele(temp, i, row)) > EPS) {
@@ -2090,7 +2091,7 @@ Matrix* handle_matrix_rank(Matrix* mat) {
                         swap_double(get_ele(temp, row, j), get_ele(temp, i, j));
                     }
                 }
-                found = 1;
+                found = true;
                 break;
             }
         }
@@ -2291,7 +2292,7 @@ Matrix * handle_matrix_trans(Matrix * mat) {
     Matrix * result = malloc_matrix(mat->columns, mat->rows);
     for (int i = 0; i < result->rows; i++) {
         for (int j = 0; j < result->columns; j++) {
-            swap_double(get_ele(result, i, j), get_ele(mat, j, i));
+            *get_ele(result, i, j) = *get_ele(mat, j, i);
         }
     }
     return result;
@@ -2327,8 +2328,10 @@ Matrix * handle_function(const char * operation_name, Matrix * mat0, Matrix * ma
     } else if(strcmp("trans", operation_name) == 0) {
         result = handle_matrix_trans(mat0);
     } else if(strcmp("add", operation_name) == 0) {
+        // example by ShuYuMo.
         result = handle_matrix_add(mat0, mat1);
     } else if(strcmp("sub", operation_name) == 0) {
+        // example by ShuYuMo.
         result = handle_matrix_sub(mat0, mat1);
     } else if(strcmp("mul", operation_name) == 0) {
         result = handle_matrix_mul(mat0, mat1);
@@ -2350,5 +2353,5 @@ int main() {
 }
 
 void yyerror(const char *s) {
-    fprintf(stderr, "Error: %s\n", s);
+    fprintf(stderr, "\033[7;31mError:\033[0m \033[1;31m%s\n\033[0m\n", s);
 }

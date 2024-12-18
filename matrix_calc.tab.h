@@ -65,7 +65,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 45 "matrix_calc.y"
+#line 46 "matrix_calc.y"
 
     double fp; // float point
     char * str; // string

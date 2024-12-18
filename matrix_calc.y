@@ -4,6 +4,7 @@
     #include <string.h>
     #include <assert.h>
     #include <math.h>
+    #include <stdbool.h>
     #include "matrix.h"
 
     #define N_MATRIX_MAX    100
@@ -221,18 +222,18 @@ void register_matrix(char * name, Matrix * mat) {
 }
 
 void print_matrix(Matrix * mat) {
-    printf("[");
+    printf("\033[1;34m[\033[0m");
     for(int i = 0; i < mat->rows; i++) {
-        printf("%s", i == 0 ? "[" : " [");
+        printf("%s", i == 0 ? "\033[34m[\033[0m" : " \033[34m[\033[0m");
         for(int j = 0; j < mat->columns; j++) {
             double x = *(get_ele(mat, i, j));
             if(fabs(x) < 1e-6) x = 0;
-            printf("% 7.3lf", x);
-            printf("%s", j == mat->columns - 1 ? "" : ", ");
+            printf("\033[1;32m% 7.3lf\033[0m", x);
+            printf("\033[35m%s\033[0m", j == mat->columns - 1 ? "" : ", ");
         }
-        printf("%s", i == mat->rows - 1 ? "]" : "],\n");
+        printf("%s", i == mat->rows - 1 ? "\033[34m]\033[0m" : "\033[34m]\033[0m\033[35m,\033[0m\n");
     }
-    printf("]\n");
+    printf("\033[1;34m]\033[0m\n");
 }
 
 Matrix * find_matrix(char * name) {
@@ -440,7 +441,7 @@ Matrix* handle_matrix_rank(Matrix* mat) {
         for (int i = row; i < rows; i++) {
             if (fabs(*get_ele(temp, i, row)) > EPS) {
                 if (i != row) {
-                    
+
                     for (int j = 0; j < cols; j++) {
                         swap_double(get_ele(temp, row, j), get_ele(temp, i, j));
                     }
@@ -541,7 +542,7 @@ Matrix* handle_matrix_eigvec(Matrix* mat) {
     double lambda_min = -100.0, lambda_max = 100.0;
     double step = 0.01;
 
-    Matrix* temp = malloc_matrix(n, n); 
+    Matrix* temp = malloc_matrix(n, n);
 
     for (double lambda = lambda_min; lambda <= lambda_max; lambda += step) {
         Matrix* detmat = malloc_matrix(n, n);
@@ -707,5 +708,5 @@ int main() {
 }
 
 void yyerror(const char *s) {
-    fprintf(stderr, "Error: %s\n", s);
+    fprintf(stderr, "\033[7;31mError:\033[0m \033[1;31m%s\n\033[0m\n", s);
 }
